@@ -1,0 +1,1 @@
+# domoticz_lg_thinq_plugin

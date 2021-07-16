@@ -1,7 +1,7 @@
 [![PyPI](https://img.shields.io/pypi/v/wideq.svg)](https://pypi.org/project/wideq/)
 [![CircleCI](https://circleci.com/gh/sampsyo/wideq.svg?style=svg)](https://circleci.com/gh/sampsyo/wideq)
 
-WideQ
+Domoticz LG Thinq (with WideQ) plugin.
 =====
 
 :warning: **New users of LG SmartThinq**: This library only works with v2 of the LG SmartThinq API. You can check how many devices this library will return when you execute the `ls` command.
@@ -41,14 +41,14 @@ Credits
 -------
 
 This is by [Adrian Sampson][adrian].
-Many thanks for [no2chem] for his [no2chem_fork] with V2 version.
+Many thanks for [no2chem] for his [fork] with V2 version.
 The license is [MIT][].
 I also made a [Home Assistant component][hass-smartthinq] that uses wideq.
 
 [hass-smartthinq]: https://github.com/sampsyo/hass-smartthinq
 [adrian]: https://github.com/sampsyo
 [no2chem]: https://github.com/no2chem
-[no2chem_fork]: https://github.com/no2chem/wideq
+[fork]: https://github.com/no2chem/wideq
 [mit]: https://opensource.org/licenses/MIT
 [black]: https://github.com/psf/black
 [pre-commit]: https://pre-commit.com/

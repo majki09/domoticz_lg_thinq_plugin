@@ -18,6 +18,7 @@
         <h3>Compatible devices</h3>
         <ul style="list-style-type:square">
             <li>AC - Air Conditioning (tested with LG PC12SQ unit).</li>
+            <li>more devices soon...</li>
         </ul>
         <br/>
     </description>
@@ -111,11 +112,7 @@ class BasePlugin:
 
         DumpConfigToLog()
         
-        
-        # self.ac = example.example("PL", "en-US", False, Parameters["Mode2"])
-        # [self.client, self.ac] = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
         self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
-        # self.ac.monitor_start()
 
     def onStop(self):
         Domoticz.Log("onStop called")
@@ -167,7 +164,7 @@ class BasePlugin:
             if(Devices[3].nValue != self.operation or Devices[3].sValue != Level):
                 self.ac.set_celsius(int(Level))
                 Domoticz.Log("new Setpoint! Current: " + str(Level))
-                Devices[3].Update(nValue = self.operation, sValue = Devices[3].sValue)
+                Devices[3].Update(nValue = self.operation, sValue = str(Level))
                 
         if (Unit == 5): # Fan speed
             # import web_pdb; web_pdb.set_trace()
@@ -322,10 +319,6 @@ class BasePlugin:
             sValueNew = "60" #6
                 
         if (Devices[5].nValue != self.operation or Devices[5].sValue != sValueNew):
-            # Domoticz.Log(str(Devices[5].nValue))
-            # Domoticz.Log("operation=" + str(self.operation))
-            # Domoticz.Log(Devices[5].sValue)
-            # Domoticz.Log(sValueNew)
             Devices[5].Update(nValue = self.operation, sValue = sValueNew)
             Domoticz.Log("windStrength received! Current: " + self.wind_strength)
             
@@ -374,13 +367,12 @@ class BasePlugin:
         if (Devices[7].nValue != self.operation or Devices[7].sValue != sValueNew):   
             Devices[7].Update(nValue = self.operation, sValue = sValueNew)
             Domoticz.Log("vStep received! Current: " + self.v_step)
-  #          
-  #      # Current Power (energy.onCurrent)
-  #      if "airState.energy.onCurrent" in status:
-  #          power = str(status["airState.energy.onCurrent"])
-  #          
-  #          Devices[8].Update(nValue = 0, sValue = power + ";0")
-  #          Domoticz.Log("power received! Current: " + power)
+            
+        # Current Power (energy.onCurrent)
+        if (Devices[8].nValue != self.operation or Devices[8].sValue != (str(self.power) + ";0")):
+            # import web_pdb; web_pdb.set_trace()
+            Devices[8].Update(nValue = self.operation, sValue = self.power + ";0")
+            Domoticz.Log("power received! Current: " + self.power)
 
 global _plugin
 _plugin = BasePlugin()

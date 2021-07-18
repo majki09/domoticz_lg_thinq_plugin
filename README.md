@@ -23,30 +23,30 @@ Installation
 
 1. Clone plugin to your domoticz
 
-    cd /home/pi/domoticz/plugins
-    git clone https://github.com/majki09/domoticz_lg_thinq_plugin.git
-    cd ./LG_ThinQ
+       cd /home/pi/domoticz/plugins
+       git clone https://github.com/majki09/domoticz_lg_thinq_plugin.git
+       cd ./LG_ThinQ
 
 2. Login and get your token. Put your own country and language codes.
 
-    $ python3 example.py -c US -l en-US
+       $ python3 example.py -c US -l en-US
  
    Copy and go to given address with your browser. Log in, copy new address from your browser and paste it to console window. If there is no error, you will get `wideq_state.json` file. Also, your LG ThinQ devices should be listed below. Note down your AC's device ID.
 
 3. Move your `wideq_state.json` file to domoticz folder.
 
-    $ mv ./wideq_state.json ../../
+       $ mv ./wideq_state.json ../../
 	
 4. Restart your domoticz.
 
-    $ sudo systemctl restart domoticz.service
+       $ sudo systemctl restart domoticz.service
 
-5. Open Hardware tab and you should be now able to add new LG ThinQ device to your domoticz. Put your country and language codes and device ID. Click "Add" and new domoticz devices should be created. That's it!
+5. Open **Hardware** tab and you should be now able to add new LG ThinQ device to your domoticz. Put your country and language codes and device ID. Click **Add** and new domoticz devices should be created. That's it!
 
 Development
 -----------
 
-This project has been developed by [Adrian Sampson][adrian] and modified for v2 by [no2chem] in his [fork]. I have made domoticz plugin then which uses most of their work for LG's server connection.
+This project is based on `wideq` project that has been developed by [Adrian Sampson][adrian] and modified for v2 by [no2chem] in his [fork]. I have made domoticz plugin then which uses most of their work for LG's server connection.
 
 To-do
 -----
@@ -55,15 +55,10 @@ To-do
 
 Credits
 -------
-
-This is by [Adrian Sampson][adrian].
-Many thanks for [no2chem] for his [fork] with V2 version.
+Many thanks for [Adrian Sampson][adrian] and [no2chem] for his [fork] with V2 version.
 The license is [MIT][].
 
-[hass-smartthinq]: https://github.com/sampsyo/hass-smartthinq
 [adrian]: https://github.com/sampsyo
 [no2chem]: https://github.com/no2chem
 [fork]: https://github.com/no2chem/wideq
 [mit]: https://opensource.org/licenses/MIT
-[black]: https://github.com/psf/black
-[pre-commit]: https://pre-commit.com/

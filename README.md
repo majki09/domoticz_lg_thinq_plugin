@@ -36,7 +36,7 @@ Installation
 3. Move your `wideq_state.json` file to domoticz folder.
 
     $ mv ./wideq_state.json ../../
-	
+
 4. Restart your domoticz.
 
     $ sudo systemctl restart domoticz.service

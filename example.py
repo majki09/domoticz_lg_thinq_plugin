@@ -228,7 +228,7 @@ def example_command(client, cmd, args):
 
 
 def example(
-    country: str, language: str, verbose: bool, device_id) -> wideq.ACDevice:
+    country: str, language: str, verbose: bool, device_id="", cmd="", args=[]) -> wideq.ACDevice:
     if verbose:
         wideq.set_log_level(logging.DEBUG)
 
@@ -256,9 +256,13 @@ def example(
     # Loop to retry if session has expired.
     while True:
         try:
-            # resp = example_command(client, cmd, args)
-            ac = wideq.ACDevice(client, _force_device(client, device_id))
-            # resp = ac_command(cmd, args)
+            ac = None
+            if len(device_id) > 0:
+                ac = wideq.ACDevice(client, _force_device(client, device_id))
+                # resp = ac_command(cmd, args)
+            else:
+                # cmd = "ls"
+                resp = example_command(client, cmd, args)
             break
 
         except wideq.NotLoggedInError:
@@ -335,13 +339,13 @@ def main() -> None:
             args.language,
         )
         exit(1)
-    # ret = example(args.country, args.language, args.verbose, args.cmd, args.args)
+    ret = example(args.country, args.language, args.verbose, cmd=args.cmd, args=args.args)
 
-    device_id = "ed333737-f3c5-1616-9ec2-44cb8b7f83ef"
+    # device_id = "ed333737-f3c5-1616-9ec2-44cb8b7f83ef"
     # cmd = wideq.ACDevice.set_mode
     # cmd_args = wideq.ACMode.FAN
-    ac = example(args.country, args.language, args.verbose, device_id)[1]
-    return ac
+    # ac = example(args.country, args.language, args.verbose, device_id)[1]
+    # return ac
 
 
 if __name__ == "__main__":

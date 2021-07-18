@@ -66,7 +66,7 @@ class BasePlugin:
         self.wind_strength = ""
         self.h_step = ""
         self.v_step = ""
-        self.power = ""
+        # self.power = ""
 
     def onStart(self):
         if Parameters["Mode6"] == "Debug":
@@ -106,7 +106,7 @@ class BasePlugin:
                        "SelectorStyle" : "1"}
                        
             Domoticz.Device(Name="Swing Vertical", Unit=7, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
-            Domoticz.Device(Name="Power", Unit=8, TypeName="kWh", Used=1).Create()
+            # Domoticz.Device(Name="Power", Unit=8, TypeName="kWh", Used=1).Create()
             
             Domoticz.Log("LG ThinQ devices created.") 
 
@@ -247,7 +247,7 @@ class BasePlugin:
                 self.wind_strength = self.ac_status.fan_speed.name
                 self.h_step = self.ac_status.horz_swing.name
                 self.v_step = self.ac_status.vert_swing.name
-                self.power = str(self.ac_status.energy_on_current)
+                # self.power = str(self.ac_status.energy_on_current)
                 
                 self.update_domoticz()
                 
@@ -369,10 +369,10 @@ class BasePlugin:
             Domoticz.Log("vStep received! Current: " + self.v_step)
             
         # Current Power (energy.onCurrent)
-        if (Devices[8].nValue != self.operation or Devices[8].sValue != (str(self.power) + ";0")):
+        # if (Devices[8].sValue != (str(self.power) + ";0")):
             # import web_pdb; web_pdb.set_trace()
-            Devices[8].Update(nValue = self.operation, sValue = self.power + ";0")
-            Domoticz.Log("power received! Current: " + self.power)
+            # Devices[8].Update(nValue = self.operation, sValue = self.power + ";0")
+            # Domoticz.Log("power received! Current: " + self.power)
 
 global _plugin
 _plugin = BasePlugin()

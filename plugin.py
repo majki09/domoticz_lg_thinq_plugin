@@ -8,8 +8,8 @@
 <plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.0.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
-        Plugin uses LG API v2. All API interface (with some mods) comes from  <a href="https://github.com/tinkerborg/thinq2-python">github.com/tinkerborg/thinq2-python</a>.<br/><br/>
-        If you have LG devices that doesn't work with API v1 (wideq plugin), maybe this one will be a chance for you.<br/><br/>
+        Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
+        If you have LG devices that doesn't work with API v1 (wideq plugin), this one should be a chance for you.<br/><br/>
         <h3>Features</h3>
         <ul style="list-style-type:square">
             <li>Reading unit parameters from LG API</li>
@@ -39,18 +39,6 @@
     </params>
 </plugin>
 """
-
-
-        # <param field="Address" label="MQTT broker IP Address" width="100px" required="true" default="test.mosquitto.org"/>
-        # <param field="Port" label="MQTT Connection" required="true" width="100px">
-            # <options>
-                # <option label="Unencrypted" value="1883" default="true" />
-                # <option label="Encrypted" value="8883" />
-                # <option label="Encrypted (Client Certificate)" value="8884" />
-            # </options>
-        # </param>
-        # <param field="Username" label="MQTT broker Username" width="100px"/>
-        # <param field="Password" label="MQTT broker Password" width="100px"/>
         
         
 import Domoticz
@@ -61,22 +49,14 @@ import example
 import wideq
 
 
-# class LGDevice:
-    # def __init__(self):
-
-
 class BasePlugin:
     enabled = False
-    # mqttConn = None
-    counter = 0
+    heartbeat_counter = 0
     
     ac = None
     ac_status = None
-    # mqtt_topic = "lg_thinq"
-    # lg_device = LGDevice()
     
     def __init__(self):
-        # return
         self.device_id = ""
         self.operation = ""
         self.op_mode = ""
@@ -100,8 +80,7 @@ class BasePlugin:
                        "SelectorStyle" : "0"}
                        
             Domoticz.Device(Name="Mode", Unit=2, TypeName="Selector Switch", Image=16, Options=Options, Used=1).Create()
-            Domoticz.Device(Name="Target temp", Unit=3, TypeName="Temperature", Used=1).Create()
-            # devicecreated.append(deviceparam(3, 0, "24"))  # default is 24 degrees
+            Domoticz.Device(Name="Target temp", Unit=3, Type=242, Subtype=1, Image=15, Used=1).Create()
             Domoticz.Device(Name="Room temp", Unit=4, TypeName="Temperature", Used=1).Create()
             
             Options = {"LevelActions" : "|||||||",
@@ -134,83 +113,64 @@ class BasePlugin:
         
         
         # self.ac = example.example("PL", "en-US", False, Parameters["Mode2"])
-        [self.client, self.ac] = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
-        self.ac.monitor_start()
-        
-        
-        # Protocol = "MQTT"
-        # if (Parameters["Port"] == "8883"): Protocol = "MQTTS"
-        # self.mqttConn = Domoticz.Connection(Name="MQTT Test", Transport="TCP/IP", Protocol=Protocol, Address=Parameters["Address"], Port=Parameters["Port"])
-        # self.mqttConn.Connect()
+        # [self.client, self.ac] = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+        self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+        # self.ac.monitor_start()
 
     def onStop(self):
         Domoticz.Log("onStop called")
-        self.ac.monitor_stop()
+        # self.ac.monitor_stop()
         
     def onConnect(self, Connection, Status, Description):
         pass
-        # if (Status == 0):
-            # Domoticz.Debug("MQTT connected successfully.")
-            # sendData = { 'Verb' : 'CONNECT',
-                         # 'ID' : "645364363" }
-            # Connection.Send(sendData)
-
-            # Connection.Send({'Verb' : 'SUBSCRIBE', 'PacketIdentifier': 1001, 'Topics': [{'Topic':self.mqtt_topic, 'QoS': 0}]})        
-
-        # else:
-            # Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["Address"]+":"+Parameters["Port"]+" with error: "+Description)
 
     def onMessage(self, Connection, Data):
         # Domoticz.Log("onMessage called with: "+Data["Verb"])
         # DumpDictionaryToLog(Data)
         
-        if Data["Verb"] == "PUBLISH" and len(Data["Payload"]) > 0:
-            # import web_pdb; web_pdb.set_trace()
-
-            msg_parsed = json.loads(Data["Payload"].decode("utf-8"))
-            status = msg_parsed["data"]["state"]["reported"]
-            
-            if Parameters["Mode6"] == "Debug":
-                Domoticz.Log(status)
-                
-            # Check if there is our DeviceID in a message
-            if msg_parsed["deviceId"] != Parameters["Mode2"]:
-                return
-            
-            if Parameters["Mode1"] == "type_ac":
-                pass
-
-                
-                
-            # Domoticz.Log("data: " + msg_parsed["data"])
-            # Domoticz.Log("state: " + msg_parsed["data"]["state"])
-            # Domoticz.Log("reported: " + msg_parsed["data"]["state"]["reported"])
+        pass
             
     def onCommand(self, Unit, Command, Level, Hue):
         # Domoticz.Debug("Command received U="+str(Unit)+" C="+str(Command)+" L= "+str(Level)+" H= "+str(Hue))
         # import web_pdb; web_pdb.set_trace()
         
-        if (Unit == 1):
+        if (Unit == 1): # Operation
             if(Command == "On"):
                 self.operation = 1
                 self.ac.set_on(True)
+                Devices[1].Update(nValue = 1, sValue = "100") 
             else:
                 self.operation = 0
                 self.ac.set_on(False)
+                Devices[1].Update(nValue = 0, sValue = "0") 
                 
         if (Unit == 2): # opMode
             if (Level == 10):
                 self.ac.set_mode(wideq.ACMode.ACO)
+                newImage = 16
             elif (Level == 20):
                 self.ac.set_mode(wideq.ACMode.COOL)
+                newImage = 16
             elif (Level == 30):
                 self.ac.set_mode(wideq.ACMode.HEAT)
+                newImage = 15
             elif (Level == 40):
                 self.ac.set_mode(wideq.ACMode.FAN)
+                newImage = 7
             elif (Level == 50):
                 self.ac.set_mode(wideq.ACMode.DRY)
+                newImage = 16
+            Devices[2].Update(nValue = self.operation, sValue = str(Level), Image = newImage)
+                
+        if (Unit == 3): # SetPoint
+            # import web_pdb; web_pdb.set_trace()
+            if(Devices[3].nValue != self.operation or Devices[3].sValue != Level):
+                self.ac.set_celsius(int(Level))
+                Domoticz.Log("new Setpoint! Current: " + str(Level))
+                Devices[3].Update(nValue = self.operation, sValue = Devices[3].sValue)
                 
         if (Unit == 5): # Fan speed
+            # import web_pdb; web_pdb.set_trace()
             if (Level == 10):
                 self.ac.set_fan_speed(wideq.ACFanSpeed.NATURE)
             elif (Level == 20):
@@ -223,6 +183,7 @@ class BasePlugin:
                 self.ac.set_fan_speed(wideq.ACFanSpeed.MID_HIGH)
             elif (Level == 60):
                 self.ac.set_fan_speed(wideq.ACFanSpeed.HIGH)
+            Devices[5].Update(nValue = self.operation, sValue = str(Level))
                 
         if (Unit == 6): # Swing horizontal
             if (Level == 10):
@@ -243,6 +204,7 @@ class BasePlugin:
                 self.ac.set_horz_swing(wideq.ACHSwingMode.LEFT_HALF)
             elif (Level == 90):
                 self.ac.set_horz_swing(wideq.ACHSwingMode.RIGHT_HALF)
+            Devices[6].Update(nValue = self.operation, sValue = str(Level))
                 
         if (Unit == 7): # Swing vertical
             if (Level == 10):
@@ -261,66 +223,43 @@ class BasePlugin:
                 self.ac.set_vert_swing(wideq.ACVSwingMode.FIVE)
             elif (Level == 80):
                 self.ac.set_vert_swing(wideq.ACVSwingMode.SIX)
-            
-            # Update state of all other devices
-            # Devices[4].Update(nValue = self.operation, sValue = Devices[4].sValue)
-            # Devices[5].Update(nValue = self.operation, sValue = Devices[5].sValue)
-            # Devices[6].Update(nValue = self.operation, sValue = Devices[6].sValue)
-        
-        # if (Unit == 4):
-            # Devices[4].Update(nValue = self.operation, sValue = str(Level))
-            
-        # if (Unit == 5):
-            # Devices[5].Update(nValue = self.operation, sValue = str(Level))
-        
-        # if (Unit == 6):
-            # Devices[6].Update(nValue = self.operation, sValue = str(Level))
-            
-        # self.httpConnSetControl.Connect()
+            Devices[7].Update(nValue = self.operation, sValue = str(Level))
         
     def onDisconnect(self, Connection):
         Domoticz.Log("onDisconnect called")
-        self.ac.monitor_stop()
+        # self.ac.monitor_stop()
 
     def onHeartbeat(self):
-        # Domoticz.Log("onHeartbeat called: "+str(self.counter))
+        # Domoticz.Log("onHeartbeat called: "+str(self.heartbeat_counter))
         # import web_pdb; web_pdb.set_trace()
         
-        try:
-            self.ac_status = self.ac.poll()
-        
-            self.operation = self.ac_status.is_on
-            if self.operation == True:
-                self.operation = 1
-            else:
-                self.operation = 0
+        if (self.heartbeat_counter % 6) == 0:
+            try:
+                # self.ac_status = self.ac.poll()
+                self.ac_status = self.ac.get_status()
+            
+                self.operation = self.ac_status.is_on
+                if self.operation == True:
+                    self.operation = 1
+                else:
+                    self.operation = 0
+                    
+                self.op_mode = self.ac_status.mode.name
+                self.target_temp = str(self.ac_status.temp_cfg_c)
+                self.room_temp = str(self.ac_status.temp_cur_c)
+                self.wind_strength = self.ac_status.fan_speed.name
+                self.h_step = self.ac_status.horz_swing.name
+                self.v_step = self.ac_status.vert_swing.name
+                self.power = str(self.ac_status.energy_on_current)
                 
-            self.op_mode = self.ac_status.mode.name
-            self.target_temp = str(self.ac_status.temp_cfg_c)
-            self.room_temp = str(self.ac_status.temp_cur_c)
-            self.wind_strength = self.ac_status.fan_speed.name
-            self.h_step = self.ac_status.horz_swing.name
-            self.v_step = self.ac_status.vert_swing.name
-            self.power = str(self.ac_status.energy_on_current)
-            
-            # if (self.mqttConn.Connected()):
-                # if ((self.counter % 6) == 0):
-                    # self.mqttConn.Send({ 'Verb' : 'PING' })
-               
-               # if (self.counter == 1):
-                   # self.mqttConn.Send({'Verb' : 'SUBSCRIBE', 'PacketIdentifier': 1001, 'Topics': [{'Topic':Parameters["Mode1"], 'QoS': 0}]})
-               # elif ((self.counter % 6) == 0):
-                   # self.mqttConn.Send({ 'Verb' : 'PING' })
-               # elif (self.counter == 10):
-                   # self.mqttConn.Send({'Verb' : 'UNSUBSCRIBE', 'Topics': [Parameters["Mode1"]]})
-               # elif (self.counter == 50):
-                   # self.mqttConn.Send({ 'Verb' : 'DISCONNECT' })
-            self.counter = self.counter + 1
-            
-            self.update_domoticz()
-        except wideq.NotLoggedInError:
-            Domoticz.Log("Session expired, refreshing...")
-            self.client.refresh()
+                self.update_domoticz()
+                
+            except wideq.NotLoggedInError:
+                Domoticz.Log("Session expired, refreshing...")
+                # import web_pdb; web_pdb.set_trace()
+                self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+                
+        self.heartbeat_counter = self.heartbeat_counter + 1
         
     def update_domoticz(self):
         # import web_pdb; web_pdb.set_trace()
@@ -337,17 +276,22 @@ class BasePlugin:
         # Mode (opMode)
         if (self.op_mode == "ACO"):
             sValueNew = "10" #Auto
+            newImage = 16
         elif (self.op_mode == "COOL"):
             sValueNew = "20" #Cool
+            newImage = 16
         elif (self.op_mode == "HEAT"):
             sValueNew = "30" #Heat
+            newImage = 15
         elif (self.op_mode == "FAN"):
             sValueNew = "40" #Fan
+            newImage = 7
         elif (self.op_mode == "DRY"):
             sValueNew = "50" #Dry
+            newImage = 16
             
         if(Devices[2].nValue != self.operation or Devices[2].sValue != sValueNew):
-            Devices[2].Update(nValue = self.operation, sValue = sValueNew)
+            Devices[2].Update(nValue = self.operation, sValue = sValueNew, Image = newImage)
             Domoticz.Log("Mode received! Current: " + self.op_mode)
             
         # Target temp (tempState.target)

@@ -228,7 +228,7 @@ def example_command(client, cmd, args):
 
 
 def example(
-    country: str, language: str, verbose: bool, device_id) -> List:
+    country: str, language: str, verbose: bool, device_id) -> wideq.ACDevice:
     if verbose:
         wideq.set_log_level(logging.DEBUG)
 
@@ -277,7 +277,8 @@ def example(
         json.dump(state, f)
         LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
         
-    return [client, ac]
+    # return [client, ac]
+    return ac
 
 
 def main() -> None:

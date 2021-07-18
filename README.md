@@ -25,13 +25,17 @@ Installation
 
        cd /home/pi/domoticz/plugins
        git clone https://github.com/majki09/domoticz_lg_thinq_plugin.git
-       cd ./LG_ThinQ
+       cd ./domoticz_lg_thinq_plugin
 
 2. Login and get your token. Put your own country and language codes.
 
        $ python3 example.py -c US -l en-US
  
-   Copy and go to given address with your browser. Log in, copy new address from your browser and paste it to console window. If there is no error, you will get `wideq_state.json` file. Also, your LG ThinQ devices should be listed below. Note down your AC's device ID.
+   Copy and go to given address with your browser. Log in, copy new address from your browser and paste it to console window. If there is no error, you will get `wideq_state.json` file. Also, your LG ThinQ devices should be listed below, which will be looking like:
+   
+       ed123456-f3c5-1616-9ec2-abcdef123456: Klima (AC RAC_056905_WW / thinq2)
+   
+   which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad.
 
 3. Move your `wideq_state.json` file to domoticz folder.
 
@@ -50,8 +54,7 @@ This project is based on `wideq` project that has been developed by [Adrian Samp
 
 To-do
 -----
-- devices are updated with a heartbeat (every 60 seconds). If you change your AC's parameters with IR remote, changes are not updated imidiately in your domoticz. Not applicable for domoticz control.
-- consumed energy can be not so accurate - since it comes from LG's server I cannot provide more accurate readings.
+- devices are updated with a heartbeat (every 60 seconds). If you change your AC's parameters with IR remote or mobile app, changes are not updated imidiately in your domoticz. Not applicable for domoticz control.
 
 Credits
 -------

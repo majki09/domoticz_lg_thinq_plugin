@@ -8,17 +8,17 @@
 <plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.0.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
-        Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
-        If you have LG devices that doesn't work with API v1 (wideq plugin), this one should be a chance for you.<br/><br/>
+        Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq">&nbspgithub.com/no2chem/wideq</a>.<br/><br/>
+        If you have LG devices that doesn't work with API v1 (wideq plugin), this plugin should be a chance for you.<br/><br/>
         <h3>Features</h3>
         <ul style="list-style-type:square">
-            <li>Reading unit parameters from LG API</li>
-            <li>Control unit with LG API</li>
+            <li>Reading unit parameters from LG ThinQ API</li>
+            <li>Control unit with LG ThinQ API</li>
         </ul>
-        <h3>Compatible devices</h3>
+        <h3>Tested and working devices - AC</h3>
         <ul style="list-style-type:square">
-            <li>AC - Air Conditioning (tested with LG PC12SQ unit).</li>
-            <li>more devices soon...</li>
+            <li>LG PC12SQ</li>
+            <li>LG AP12RT NSJ</li>
         </ul>
         <br/>
     </description>

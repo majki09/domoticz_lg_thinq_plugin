@@ -1,7 +1,9 @@
-Domoticz LG Thinq (with WideQ) plugin.
+Domoticz LG ThinQ (with WideQ) plugin.
 =====
 
-:warning: **New users of LG ThinQ**: This library only works with v2 of the LG ThinQ API. You can check how many devices this library will return when you execute the `ls` command.
+![alt text](https://raw.githubusercontent.com/majki09/domoticz_lg_thinq_plugin/main/domoticz.jpg "LG ThinQ plugin in domoticz")
+
+:warning: **New users of LG ThinQ**: This library only works with v2 of the LG ThinQ API. You can check how many devices this library will return when you execute the `example.py` command with `ls` argument.
 
 A library for interacting with the "LG ThinQ" system, which can control heat pumps and such. The API has been reverse-engineered from LG's mobile app.
 

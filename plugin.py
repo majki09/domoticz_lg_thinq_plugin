@@ -142,6 +142,7 @@ class BasePlugin:
                 Devices[1].Update(nValue = 0, sValue = "0") 
                 
         if (Unit == 2): # opMode
+            newImage = 16
             if (Level == 10):
                 self.ac.set_mode(wideq.ACMode.ACO)
                 newImage = 16

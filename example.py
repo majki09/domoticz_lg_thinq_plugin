@@ -8,8 +8,8 @@ import sys
 import re
 import os.path
 import logging
-from typing import List
-from pprint import pprint
+# from typing import List
+# from pprint import pprint
 
 STATE_FILE = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
@@ -228,7 +228,7 @@ def example_command(client, cmd, args):
 
 
 def example(
-    country: str, language: str, verbose: bool, device_id="", cmd="", args=[]) -> wideq.ACDevice:
+        country: str, language: str, verbose: bool, device_id="", cmd="", args: list = []) -> wideq.ACDevice:
     if verbose:
         wideq.set_log_level(logging.DEBUG)
 
@@ -280,7 +280,7 @@ def example(
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
         LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
-        
+
     # return [client, ac]
     return ac
 

@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.0.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.0.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq">&nbspgithub.com/no2chem/wideq</a>.<br/><br/>
@@ -112,7 +112,10 @@ class BasePlugin:
 
         DumpConfigToLog()
         
-        self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+        try:
+            self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+        except IOError:
+            Domoticz.Error("wideq_state.json status file missing or corrupted.")
 
     def onStop(self):
         Domoticz.Log("onStop called")
@@ -231,33 +234,37 @@ class BasePlugin:
         # Domoticz.Log("onHeartbeat called: "+str(self.heartbeat_counter))
         # import web_pdb; web_pdb.set_trace()
         
-        if (self.heartbeat_counter % 6) == 0:
-            try:
-                # self.ac_status = self.ac.poll()
-                self.ac_status = self.ac.get_status()
-            
-                self.operation = self.ac_status.is_on
-                if self.operation == True:
-                    self.operation = 1
-                else:
-                    self.operation = 0
+        # to check if self.ac has been already read out from server
+        if self.ac is not None:
+            if (self.heartbeat_counter % 6) == 0:
+                try:
+                    # self.ac_status = self.ac.poll()
+                    self.ac_status = self.ac.get_status()
+                
+                    self.operation = self.ac_status.is_on
+                    if self.operation == True:
+                        self.operation = 1
+                    else:
+                        self.operation = 0
+                        
+                    self.op_mode = self.ac_status.mode.name
+                    self.target_temp = str(self.ac_status.temp_cfg_c)
+                    self.room_temp = str(self.ac_status.temp_cur_c)
+                    self.wind_strength = self.ac_status.fan_speed.name
+                    self.h_step = self.ac_status.horz_swing.name
+                    self.v_step = self.ac_status.vert_swing.name
+                    # self.power = str(self.ac_status.energy_on_current)
                     
-                self.op_mode = self.ac_status.mode.name
-                self.target_temp = str(self.ac_status.temp_cfg_c)
-                self.room_temp = str(self.ac_status.temp_cur_c)
-                self.wind_strength = self.ac_status.fan_speed.name
-                self.h_step = self.ac_status.horz_swing.name
-                self.v_step = self.ac_status.vert_swing.name
-                # self.power = str(self.ac_status.energy_on_current)
-                
-                self.update_domoticz()
-                
-            except wideq.NotLoggedInError:
-                Domoticz.Log("Session expired, refreshing...")
-                # import web_pdb; web_pdb.set_trace()
-                self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
-                
-        self.heartbeat_counter = self.heartbeat_counter + 1
+                    self.update_domoticz()
+                    
+                except wideq.NotLoggedInError:
+                    Domoticz.Log("Session expired, refreshing...")
+                    # import web_pdb; web_pdb.set_trace()
+                    self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+                    
+            self.heartbeat_counter = self.heartbeat_counter + 1
+        else:
+            Domoticz.Error("wideq_state.json status file missing or corrupted. Heartbeat has nothing to do.")
         
     def update_domoticz(self):
         # import web_pdb; web_pdb.set_trace()

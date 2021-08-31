@@ -8,8 +8,6 @@ import sys
 import re
 import os.path
 import logging
-# from typing import List
-# from pprint import pprint
 
 STATE_FILE = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
@@ -239,9 +237,8 @@ def example(
             state = json.load(f)
     except IOError:
         state = {}
-        LOGGER.debug(
-            "No state file found (tried: '%s')", os.path.abspath(STATE_FILE)
-        )
+        LOGGER.debug("No state file found (tried: '%s')", os.path.abspath(STATE_FILE))
+        raise IOError
 
     client = wideq.Client.load(state)
     if country:
@@ -340,12 +337,6 @@ def main() -> None:
         )
         exit(1)
     ret = example(args.country, args.language, args.verbose, cmd=args.cmd, args=args.args)
-
-    # device_id = "ed333737-f3c5-1616-9ec2-44cb8b7f83ef"
-    # cmd = wideq.ACDevice.set_mode
-    # cmd_args = wideq.ACMode.FAN
-    # ac = example(args.country, args.language, args.verbose, device_id)[1]
-    # return ac
 
 
 if __name__ == "__main__":

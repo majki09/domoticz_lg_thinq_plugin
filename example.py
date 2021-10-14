@@ -238,7 +238,6 @@ def example(
     except IOError:
         state = {}
         LOGGER.debug("No state file found (tried: '%s')", os.path.abspath(STATE_FILE))
-        raise IOError
 
     client = wideq.Client.load(state)
     if country:

@@ -71,51 +71,57 @@ class BasePlugin:
     def onStart(self):
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(1)
-
-        if len(Devices) == 0:
-            Domoticz.Device(Name="Operation", Unit=1, Image=16, TypeName="Switch", Used=1).Create()
             
-            Options = {"LevelActions" : "|||||",
-                       "LevelNames" : "|Auto|Cool|Heat|Fan|Dry",
-                       "LevelOffHidden" : "true",
-                       "SelectorStyle" : "0"}
-                       
-            Domoticz.Device(Name="Mode", Unit=2, TypeName="Selector Switch", Image=16, Options=Options, Used=1).Create()
-            Domoticz.Device(Name="Target temp", Unit=3, Type=242, Subtype=1, Image=15, Used=1).Create()
-            Domoticz.Device(Name="Room temp", Unit=4, TypeName="Temperature", Used=1).Create()
-            
-            Options = {"LevelActions" : "|||||||",
-                       "LevelNames" : "|Auto|L2|L3|L4|L5|L6",
-                       "LevelOffHidden" : "true",
-                       "SelectorStyle" : "0"}
-                       
-            Domoticz.Device(Name="Fan speed", Unit=5, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
-            
-            
-            Options = {"LevelActions" : "||||||||||",
-                       "LevelNames" : "|Left-Right|None|Left|Mid-Left|Centre|Mid-Right|Right|Left-Centre|Centre-Right",
-                       "LevelOffHidden" : "true",
-                       "SelectorStyle" : "1"}
-                       
-            Domoticz.Device(Name="Swing Horizontal", Unit=6, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
-            
-            
-            Options = {"LevelActions" : "|||||||||",
-                       "LevelNames" : "|Top-Bottom|None|Top|1|2|3|4|Bottom",
-                       "LevelOffHidden" : "true",
-                       "SelectorStyle" : "1"}
-                       
-            Domoticz.Device(Name="Swing Vertical", Unit=7, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
-            # Domoticz.Device(Name="Power", Unit=8, TypeName="kWh", Used=1).Create()
-            
-            Domoticz.Log("LG ThinQ devices created.") 
-
-        DumpConfigToLog()
-        
         try:
             self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
         except IOError:
             Domoticz.Error("wideq_state.json status file missing or corrupted.")
+        except AttributeError:
+            Domoticz.Error("You don't have any compatible (LG API V2) devices.")
+
+        if self.ac is not None:
+            Domoticz.Log("Getting AC status successfull.")
+            if len(Devices) == 0:
+                Domoticz.Device(Name="Operation", Unit=1, Image=16, TypeName="Switch", Used=1).Create()
+                
+                Options = {"LevelActions" : "|||||",
+                           "LevelNames" : "|Auto|Cool|Heat|Fan|Dry",
+                           "LevelOffHidden" : "true",
+                           "SelectorStyle" : "0"}
+                           
+                Domoticz.Device(Name="Mode", Unit=2, TypeName="Selector Switch", Image=16, Options=Options, Used=1).Create()
+                Domoticz.Device(Name="Target temp", Unit=3, Type=242, Subtype=1, Image=15, Used=1).Create()
+                Domoticz.Device(Name="Room temp", Unit=4, TypeName="Temperature", Used=1).Create()
+                
+                Options = {"LevelActions" : "|||||||",
+                           "LevelNames" : "|Auto|L2|L3|L4|L5|L6",
+                           "LevelOffHidden" : "true",
+                           "SelectorStyle" : "0"}
+                           
+                Domoticz.Device(Name="Fan speed", Unit=5, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
+                
+                
+                Options = {"LevelActions" : "||||||||||",
+                           "LevelNames" : "|Left-Right|None|Left|Mid-Left|Centre|Mid-Right|Right|Left-Centre|Centre-Right",
+                           "LevelOffHidden" : "true",
+                           "SelectorStyle" : "1"}
+                           
+                Domoticz.Device(Name="Swing Horizontal", Unit=6, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
+                
+                
+                Options = {"LevelActions" : "|||||||||",
+                           "LevelNames" : "|Top-Bottom|None|Top|1|2|3|4|Bottom",
+                           "LevelOffHidden" : "true",
+                           "SelectorStyle" : "1"}
+                           
+                Domoticz.Device(Name="Swing Vertical", Unit=7, TypeName="Selector Switch", Image=7, Options=Options, Used=1).Create()
+                # Domoticz.Device(Name="Power", Unit=8, TypeName="kWh", Used=1).Create()
+                
+                Domoticz.Log("LG ThinQ devices created.") 
+        else:
+            Domoticz.Error("Getting AC status failed.")
+
+        DumpConfigToLog()
 
     def onStop(self):
         Domoticz.Log("onStop called")
@@ -263,8 +269,6 @@ class BasePlugin:
                     self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
                     
             self.heartbeat_counter = self.heartbeat_counter + 1
-        else:
-            Domoticz.Error("wideq_state.json status file missing or corrupted. Heartbeat has nothing to do.")
         
     def update_domoticz(self):
         # import web_pdb; web_pdb.set_trace()

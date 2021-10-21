@@ -29,8 +29,24 @@ def authenticate(gateway):
 def ls(client):
     """List the user's devices."""
 
-    for device in client.devices:
-        print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+    thinq1_devices = [dev for dev in client.devices if dev.platform_type == "thinq1"]
+    thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
+
+    if len(thinq1_devices) > 0:
+        print("\nthinq1 devices: {}".format(len(thinq1_devices)))
+        print("WARNING! Following devices are V1 LG API and will likely NOT work with this domoticz plugin!\n")
+        for device in thinq1_devices:
+            print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+
+    print("\nthinq2 devices: {}".format(len(thinq2_devices)))
+    if len(thinq2_devices) > 0:
+        for device in thinq2_devices:
+            print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+    else:
+        print("\n--------------------------------------------------------------------------------")
+        print("You don't have any thinq2 (LG API V2) device. This plugin will not work for you.")
+        print("wideq_state.json file will NOT be generated.")
+        print("--------------------------------------------------------------------------------")
 
 
 def info(client, device_id):
@@ -143,6 +159,9 @@ def _force_device(client, device_id):
     device = client.get_device(device_id)
     if not device:
         raise UserError('device "{}" not found'.format(device_id))
+    if device.platform_type != "thinq2":
+        raise AttributeError(
+            'Sorry, device "{}" is V1 LG API and will NOT work with this domoticz plugin.'.format(device_id))
     return device
 
 
@@ -271,11 +290,18 @@ def example(
             print(exc.msg)
             sys.exit(1)
 
-    # Save the updated state.
-    state = client.dump()
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f)
-        LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
+        except AttributeError as exc:
+            print(exc.args[0])
+            # sys.exit(2)
+            raise AttributeError
+
+    thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
+    if len(thinq2_devices) > 0:
+        # Save the updated state.
+        state = client.dump()
+        with open(STATE_FILE, "w") as f:
+            json.dump(state, f)
+            LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
 
     # return [client, ac]
     return ac
@@ -336,7 +362,6 @@ def main() -> None:
         )
         exit(1)
     ret = example(args.country, args.language, args.verbose, cmd=args.cmd, args=args.args)
-
 
 if __name__ == "__main__":
     main()

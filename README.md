@@ -3,17 +3,11 @@ Domoticz LG ThinQ (with WideQ) plugin.
 
 ![alt text](https://raw.githubusercontent.com/majki09/domoticz_lg_thinq_plugin/main/domoticz.jpg "LG ThinQ plugin in domoticz")
 
-:warning: **New users of LG ThinQ**: This library only works with v2 of the LG ThinQ API. You can check how many devices this library will return when you execute the `example.py` command with `ls` argument.
-
-A library for interacting with the "LG ThinQ" system, which can control heat pumps and such. The API has been reverse-engineered from LG's mobile app.
-
-To try out the API, there is a simple command-line tool included here, called `example.py`.
-To use it, provide it with a country and language code via the `-c` and `-l` flags, respectively:
+:warning: **New users of LG ThinQ**: This library only works with v2 of the LG ThinQ API. You can check if your device is compatible when you execute the `example.py`. To use it, provide it with a country and language code via the `-c` and `-l` flags, respectively:
 
     $ python3 example.py -c US -l en-US
 
-LG accounts seem to be associated with specific countries, so be sure to use the one with which you originally created your account.
-For Polish, for example, you'd use `-c PL -l en-US`.
+LG accounts seem to be associated with specific countries, so be sure to use the one with which you originally created your account. For Polish, for example, you'd use `-c PL -l en-US`.
 
 On first run, the script will ask you to log in with your LG account.
 Logging in with Google does not seem to work, but other methods (plain email & password, Facebook, and Amazon) do. 
@@ -33,11 +27,28 @@ Installation
 
        $ python3 example.py -c US -l en-US
  
-   Copy and go to given address with your browser. Log in, copy new address from your browser and paste it to console window. If there is no error, you will get `wideq_state.json` file. Also, your LG ThinQ devices should be listed below, which will be looking like:
+   Copy and go to given address with your browser. Log in, copy new address from your browser and paste it to console window. 
+
+:warning: In case your device is not compatible, you will NOT get `wideq_state.json` and you will get following message:
+
+       thinq1 devices: 1
+       WARNING! Following devices are V1 LG API and will likely NOT work with this domoticz plugin!
+
+       ab123456-c3c5-8181-9ec2-abcdef123456: LG thinq1 device (AC AWHP_5555_WW / thinq1)
+
+       thinq2 devices: 0
+
+       --------------------------------------------------------------------------------
+       You don't have any thinq2 (LG API V2) device. This plugin will not work for you.
+       wideq_state.json file will NOT be generated.
+       --------------------------------------------------------------------------------
+
+Proceed only if you have at least one *thinq2* compatible device listed, which can look like this:
    
+       thinq devices: 1
        ed123456-f3c5-1616-9ec2-abcdef123456: Klima (AC RAC_056905_WW / thinq2)
    
-   which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad.
+   which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad. You will get your `wideq_state.json` file in plugin's folder.
 
 3. Move your `wideq_state.json` file to domoticz folder.
 
@@ -51,7 +62,7 @@ Installation
 
 Development
 -----------
-
+The API has been reverse-engineered from LG's mobile app.
 This project is based on `wideq` project that has been developed by [Adrian Sampson][adrian] and modified for v2 by [no2chem] in his [fork]. I have made domoticz plugin then which uses most of their work for LG's server connection.
 
 To-do

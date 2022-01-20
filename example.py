@@ -9,7 +9,7 @@ import re
 import os.path
 import logging
 
-STATE_FILE = "wideq_state.json"
+STATE_FILE = "plugins/LG_ThinQ/wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
 
 
@@ -244,19 +244,35 @@ def example_command(client, cmd, args):
     return func(client, *args)
 
 
-def example(
-        country: str, language: str, verbose: bool, device_id="", cmd="", args: list = []) -> wideq.ACDevice:
+def example(country: str,
+            language: str,
+            verbose: bool,
+            device_id="",
+            cmd="",
+            state="",
+            args: list = []) -> wideq.ACDevice:
     if verbose:
         wideq.set_log_level(logging.DEBUG)
 
     # Load the current state for the example.
-    try:
-        with open(STATE_FILE) as f:
-            LOGGER.debug("State file found '%s'", os.path.abspath(STATE_FILE))
-            state = json.load(f)
-    except IOError:
-        state = {}
-        LOGGER.debug("No state file found (tried: '%s')", os.path.abspath(STATE_FILE))
+        # if state data comes from Domoticz Configuration
+    if len(state) > 0:
+        try:
+            # state = json.load(client)
+            LOGGER.info("State data loaded from Domoticz Configuration.")
+        except:
+            state = {}
+            LOGGER.error("Loading state data from Domoticz Configuration failed.")
+    else:
+        # if state data comes from wideq_state.json
+        try:
+            with open(STATE_FILE) as f:
+                LOGGER.info("State file found '%s'", os.path.abspath(STATE_FILE))
+                state = json.load(f)
+        except IOError:
+            state = {}
+            LOGGER.info("No state file found (tried: '%s')", os.path.abspath(STATE_FILE))
+            # raise IOError
 
     client = wideq.Client.load(state)
     if country:
@@ -303,8 +319,7 @@ def example(
             json.dump(state, f)
             LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
 
-    # return [client, ac]
-    return ac
+    return ac, client.dump()
 
 
 def main() -> None:

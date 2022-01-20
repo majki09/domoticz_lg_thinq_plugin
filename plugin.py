@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.0.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.1.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq">&nbspgithub.com/no2chem/wideq</a>.<br/><br/>
@@ -54,7 +54,7 @@ class BasePlugin:
     enabled = False
     heartbeat_counter = 0
     
-    ac = None
+    # ac = None
     ac_status = None
     
     def __init__(self):
@@ -67,13 +67,31 @@ class BasePlugin:
         self.h_step = ""
         self.v_step = ""
         # self.power = ""
+        
+        self.ac = None
+        self.state = {}
 
     def onStart(self):
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(1)
             
+        # setConfigItem(Key=client, Value="")
+            
         try:
-            self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+            # import web_pdb; web_pdb.set_trace()
+            # load config from Domoticz Configuration
+            self.state["gateway"] = getConfigItem(Key="gateway")
+            self.state["auth"] = getConfigItem(Key="auth")
+            
+            # read AC parameters and Client state
+            self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"], state=self.state)
+            
+            # store Client state into Domoticz Configuration
+            if getConfigItem(Key="gateway") != self.state["gateway"]:
+                setConfigItem(Key="gateway", Value=self.state["gateway"])
+            if getConfigItem(Key="auth") != self.state["auth"]:
+                setConfigItem(Key="auth", Value=self.state["auth"])
+            
         except IOError:
             Domoticz.Error("wideq_state.json status file missing or corrupted.")
         except AttributeError:
@@ -264,9 +282,20 @@ class BasePlugin:
                     self.update_domoticz()
                     
                 except wideq.NotLoggedInError:
+                    # load config from Domoticz Configuration
+                    self.state["gateway"] = getConfigItem(Key="gateway")
+                    self.state["auth"] = getConfigItem(Key="auth")
+            
+                    # read AC parameters and Client state
                     Domoticz.Log("Session expired, refreshing...")
-                    # import web_pdb; web_pdb.set_trace()
-                    self.ac = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"])
+                    self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"], state=self.state)
+                    setConfigItem(Key="state", Value=self.state)
+                    
+                    # store Client state into Domoticz Configuration
+                    if getConfigItem(Key="gateway") != self.state["gateway"]:
+                        setConfigItem(Key="gateway", Value=self.state["gateway"])
+                    if getConfigItem(Key="auth") != self.state["auth"]:
+                        setConfigItem(Key="auth", Value=self.state["auth"])
                     
             self.heartbeat_counter = self.heartbeat_counter + 1
         
@@ -460,3 +489,30 @@ def DumpListToLog(theList, Depth):
             else:
                 Domoticz.Log(Depth+">'" + x + "': " + str(theList[x]))
 
+# Configuration Helpers
+def getConfigItem(Key=None, Default={}):
+    Value = Default
+    try:
+        Config = Domoticz.Configuration()
+        if (Key != None):
+            Value = Config[Key] # only return requested key if there was one
+        else:
+            Value = Config      # return the whole configuration if no key
+    except KeyError:
+        Value = Default
+    except Exception as inst:
+        Domoticz.Error("Domoticz.Configuration read failed: '"+str(inst)+"'")
+    return Value
+    
+def setConfigItem(Key=None, Value=None):
+    Config = {}
+    try:
+        Config = Domoticz.Configuration()
+        if (Key != None):
+            Config[Key] = Value
+        else:
+            Config = Value  # set whole configuration if no key specified
+        Config = Domoticz.Configuration(Config)
+    except Exception as inst:
+        Domoticz.Error("Domoticz.Configuration operation failed: '"+str(inst)+"'")
+    return Config

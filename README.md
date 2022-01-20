@@ -45,7 +45,7 @@ Installation
 
 Proceed only if you have at least one *thinq2* compatible device listed, which can look like this:
    
-       thinq devices: 1
+       thinq2 devices: 1
        ed123456-f3c5-1616-9ec2-abcdef123456: Klima (AC RAC_056905_WW / thinq2)
    
    which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad. You will get your `wideq_state.json` file in plugin's folder.

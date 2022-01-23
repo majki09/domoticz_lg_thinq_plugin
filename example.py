@@ -9,7 +9,7 @@ import re
 import os.path
 import logging
 
-STATE_FILE = "plugins/LG_ThinQ/wideq_state.json"
+STATE_FILE = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
 
 
@@ -249,30 +249,31 @@ def example(country: str,
             verbose: bool,
             device_id="",
             cmd="",
-            state="",
-            args: list = []) -> wideq.ACDevice:
+            state=None,
+            args=None):
+    if args is None:
+        args = []
+    if state is None:
+        state = {"gateway": {}, "auth": {}}
     if verbose:
         wideq.set_log_level(logging.DEBUG)
 
     # Load the current state for the example.
+    if state["gateway"] != {} and state["auth"] != {}:
         # if state data comes from Domoticz Configuration
-    if len(state) > 0:
-        try:
-            # state = json.load(client)
-            LOGGER.info("State data loaded from Domoticz Configuration.")
-        except:
-            state = {}
-            LOGGER.error("Loading state data from Domoticz Configuration failed.")
+        LOGGER.info("State data loaded from Domoticz Configuration.")
     else:
         # if state data comes from wideq_state.json
         try:
             with open(STATE_FILE) as f:
-                LOGGER.info("State file found '%s'", os.path.abspath(STATE_FILE))
+                LOGGER.info("State data loaded from " + os.path.abspath(STATE_FILE) + "'")
                 state = json.load(f)
         except IOError:
-            state = {}
-            LOGGER.info("No state file found (tried: '%s')", os.path.abspath(STATE_FILE))
-            # raise IOError
+            LOGGER.error("No state file found (tried: '" + os.path.abspath(STATE_FILE) + "')")
+            raise IOError
+        except json.decoder.JSONDecodeError:
+            LOGGER.error("Broken wideq_state.json file?")
+            raise IOError
 
     client = wideq.Client.load(state)
     if country:
@@ -290,24 +291,20 @@ def example(country: str,
             ac = None
             if len(device_id) > 0:
                 ac = wideq.ACDevice(client, _force_device(client, device_id))
-                # resp = ac_command(cmd, args)
             else:
-                # cmd = "ls"
                 resp = example_command(client, cmd, args)
             break
 
         except wideq.NotLoggedInError:
-            # LOGGER.info("Session expired.")
-            print("Session expired.")
+            LOGGER.info("Session expired.")
             client.refresh()
 
         except UserError as exc:
-            # LOGGER.error(exc.msg)
-            print(exc.msg)
+            LOGGER.error(exc.msg)
             sys.exit(1)
 
         except AttributeError as exc:
-            print(exc.args[0])
+            LOGGER.error(exc.args[0])
             # sys.exit(2)
             raise AttributeError
 
@@ -317,9 +314,11 @@ def example(country: str,
         state = client.dump()
         with open(STATE_FILE, "w") as f:
             json.dump(state, f)
-            LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
+            LOGGER.info("Wrote state file '%s'", os.path.abspath(STATE_FILE))
 
-    return ac, client.dump()
+    dict_for_domoticz = {"gateway":state["gateway"], "auth":state["auth"]}
+
+    return ac, dict_for_domoticz
 
 
 def main() -> None:
@@ -377,6 +376,7 @@ def main() -> None:
         )
         exit(1)
     ret = example(args.country, args.language, args.verbose, cmd=args.cmd, args=args.args)
+
 
 if __name__ == "__main__":
     main()

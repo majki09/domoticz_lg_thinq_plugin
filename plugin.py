@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.1.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.1.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq">&nbspgithub.com/no2chem/wideq</a>.<br/><br/>
@@ -54,7 +54,6 @@ class BasePlugin:
     enabled = False
     heartbeat_counter = 0
     
-    # ac = None
     ac_status = None
     
     def __init__(self):
@@ -75,30 +74,31 @@ class BasePlugin:
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(1)
             
-        # setConfigItem(Key=client, Value="")
+        # import web_pdb; web_pdb.set_trace()
+        # load config from Domoticz Configuration
+        self.state["gateway"] = getConfigItem(Key="gateway")
+        self.state["auth"] = getConfigItem(Key="auth")
             
         try:
-            # import web_pdb; web_pdb.set_trace()
-            # load config from Domoticz Configuration
-            self.state["gateway"] = getConfigItem(Key="gateway")
-            self.state["auth"] = getConfigItem(Key="auth")
-            
             # read AC parameters and Client state
-            self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"], state=self.state)
-            
-            # store Client state into Domoticz Configuration
-            if getConfigItem(Key="gateway") != self.state["gateway"]:
-                setConfigItem(Key="gateway", Value=self.state["gateway"])
-            if getConfigItem(Key="auth") != self.state["auth"]:
-                setConfigItem(Key="auth", Value=self.state["auth"])
+            self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"],
+                                                  state=self.state)
             
         except IOError:
             Domoticz.Error("wideq_state.json status file missing or corrupted.")
         except AttributeError:
             Domoticz.Error("You don't have any compatible (LG API V2) devices.")
+            
+        # store Client state into Domoticz Configuration
+        if getConfigItem(Key="gateway") != self.state["gateway"]:
+            setConfigItem(Key="gateway", Value=self.state["gateway"])
+            Domoticz.Log("LG API2 (gateway) config saved do Domoticz Configuration.")
+        if getConfigItem(Key="auth") != self.state["auth"]:
+            setConfigItem(Key="auth", Value=self.state["auth"])
+            Domoticz.Log("LG API2 (auth) config saved do Domoticz Configuration.")
 
         if self.ac is not None:
-            Domoticz.Log("Getting AC status successfull.")
+            Domoticz.Log("Getting AC status successful.")
             if len(Devices) == 0:
                 Domoticz.Device(Name="Operation", Unit=1, Image=16, TypeName="Switch", Used=1).Create()
                 
@@ -288,7 +288,8 @@ class BasePlugin:
             
                     # read AC parameters and Client state
                     Domoticz.Log("Session expired, refreshing...")
-                    self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False, Parameters["Mode2"], state=self.state)
+                    self.ac, self.state = example.example(Parameters["Mode3"], Parameters["Mode4"], False,
+                                                          Parameters["Mode2"], state=self.state)
                     setConfigItem(Key="state", Value=self.state)
                     
                     # store Client state into Domoticz Configuration

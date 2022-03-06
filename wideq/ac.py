@@ -247,6 +247,11 @@ class ACDevice(Device):
 
         self.set_celsius(self.f2c[f])
 
+    def set_hot_water(self, c):
+        """Set the device's hot-water target temperature in Celsius degrees."""
+
+        self._set_control("airState.tempState.hotWaterTarget", c)
+
     def set_zones(self, zones):
         """Turn off or on the device's zones.
 
@@ -423,6 +428,42 @@ class ACStatus(object):
     @property
     def temp_cfg_f(self):
         return self.ac.c2f[self.temp_cfg_c]
+
+
+    @property
+    def temp_hot_water_cur_c(self):
+        return self._str_to_num(self.data["airState.tempState.hotWaterCurrent"])
+
+    @property
+    def temp_hot_water_cur_f(self):
+        return self.ac.c2f[self.temp_hot_water_cur_c]
+
+    @property
+    def temp_hot_water_cfg_c(self):
+        return self._str_to_num(self.data["airState.tempState.hotWaterTarget"])
+
+    @property
+    def temp_hot_water_cfg_f(self):
+        return self.ac.c2f[self.temp_hot_water_cfg_c]
+        
+
+    @property
+    def in_water_cur_c(self):
+        return self._str_to_num(self.data["airState.tempState.inWaterCurrent"])
+
+    @property
+    def in_water_cur_f(self):
+        return self.ac.c2f[self.in_water_cur_c]
+        
+
+    @property
+    def out_water_cur_c(self):
+        return self._str_to_num(self.data["airState.tempState.outWaterCurrent"])
+
+    @property
+    def out_water_cur_f(self):
+        return self.ac.c2f[self.out_water_cur_c]
+        
 
     @property
     def mode(self):

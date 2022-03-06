@@ -200,6 +200,16 @@ def set_temp_freezer(client, device_id, temp):
         )
 
 
+def set_temp_hot_water(client, device_id, temp):
+    """Set the configured hot-water temperature for a heat pump device."""
+
+    device = client.get_device(device_id)
+
+    if device.type == wideq.client.DeviceType.AC:
+        awhp = wideq.ACDevice(client, _force_device(client, device_id))
+        awhp.set_hot_water(int(temp))
+
+
 def turn(client, device_id, on_off):
     """Turn on/off an AC device."""
 
@@ -226,6 +236,7 @@ EXAMPLE_COMMANDS = {
     "mon": mon,
     "set-temp": set_temp,
     "set-temp-freezer": set_temp_freezer,
+    "set-temp-hot-water": set_temp_hot_water,
     "turn": turn,
     "ac-config": ac_config,
     "info": info,
@@ -301,7 +312,8 @@ def example(country: str,
 
         except UserError as exc:
             LOGGER.error(exc.msg)
-            sys.exit(1)
+            # sys.exit(1)
+            raise UserWarning
 
         except AttributeError as exc:
             LOGGER.error(exc.args[0])

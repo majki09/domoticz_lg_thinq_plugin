@@ -85,8 +85,10 @@ class BasePlugin:
             
         # import web_pdb; web_pdb.set_trace()
         # load config from Domoticz Configuration
-        self.state["gateway"] = getConfigItem(Key="gateway")
-        self.state["auth"] = getConfigItem(Key="auth")
+        # self.state["gateway"] = getConfigItem(Key="gateway")
+        # self.state["auth"] = getConfigItem(Key="auth")
+        self.state["gateway"] = {}
+        self.state["auth"] = {}
             
         try:
             # read AC parameters and Client state
@@ -190,7 +192,7 @@ class BasePlugin:
         # import web_pdb; web_pdb.set_trace()
         
         # AC part
-        if Parameters["Mode"] == "type_ac":
+        if Parameters["Mode1"] == "type_ac":
             if (Unit == 1): # Operation
                 if(Command == "On"):
                     self.operation = 1
@@ -224,7 +226,7 @@ class BasePlugin:
                 # import web_pdb; web_pdb.set_trace()
                 if(Devices[3].nValue != self.operation or Devices[3].sValue != Level):
                     self.lg_device.set_celsius(int(Level))
-                    Domoticz.Log("new Setpoint! Current: " + str(Level))
+                    Domoticz.Log("new Setpoint: " + str(Level))
                     Devices[3].Update(nValue = self.operation, sValue = str(Level))
                     
             if (Unit == 5): # Fan speed
@@ -285,7 +287,7 @@ class BasePlugin:
                 
             
         # AWHP part
-        if Parameters["Mode"] == "type_awhp":
+        if Parameters["Mode1"] == "type_awhp":
             if (Unit == 1): # Operation
                 if(Command == "On"):
                     self.operation = 1
@@ -312,23 +314,24 @@ class BasePlugin:
             if (Unit == 3): # Target temp
                 if(Devices[3].nValue != self.operation or Devices[3].sValue != Level):
                     self.lg_device.set_celsius(int(Level))
-                    Domoticz.Log("new Target temp! Current: " + str(Level))
+                    Domoticz.Log("new Target temp: " + str(Level))
                     Devices[3].Update(nValue = self.operation, sValue = str(Level))
                     
             if (Unit == 4): # Hot water temp
                 if(Devices[4].nValue != self.operation or Devices[4].sValue != Level):
                     self.lg_device.set_hot_water(int(Level))
-                    Domoticz.Log("new Target temp! Current: " + str(Level))
+                    Domoticz.Log("new Hot water Target temp: " + str(Level))
                     Devices[4].Update(nValue = self.operation, sValue = str(Level))
         
     def onDisconnect(self, Connection):
         Domoticz.Log("onDisconnect called")
         # self.lg_device.monitor_stop()
 
+    # every 5 seconds
     def onHeartbeat(self):
         # Domoticz.Log("onHeartbeat called: "+str(self.heartbeat_counter))
-        
         if (self.heartbeat_counter % 6) == 0:
+            # Domoticz.Log("onHeartbeat %6 called: "+str(self.heartbeat_counter))
             # import web_pdb; web_pdb.set_trace()
             # to check if self.lg_device has been already read out from server
             if self.lg_device is not None:
@@ -386,6 +389,8 @@ class BasePlugin:
                         setConfigItem(Key="auth", Value=self.state["auth"])
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
+        if self.heartbeat_counter > 6:
+            self.heartbeat_counter = 0
         
     def update_domoticz(self):
         # import web_pdb; web_pdb.set_trace()

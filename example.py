@@ -270,7 +270,8 @@ def example(country: str,
                 state = json.load(f)
         except IOError:
             LOGGER.error("No state file found (tried: '" + os.path.abspath(STATE_FILE) + "')")
-            raise IOError
+            state = {}
+            # raise IOError
         except json.decoder.JSONDecodeError:
             LOGGER.error("Broken wideq_state.json file?")
             raise IOError

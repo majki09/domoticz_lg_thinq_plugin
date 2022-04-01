@@ -6,7 +6,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.2.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="1.2.2" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -23,7 +23,7 @@
         </ul>
         <h4>Air-to-Water Heat Pumps (AWHP)</h4>
         <ul style="list-style-type:square">
-            <li>LG xxxXXXxxx</li>
+            <li>LG therma V 7kW HN0916M NK4</li>
         </ul>
         <br/>
     </description>
@@ -152,7 +152,7 @@ class BasePlugin:
                 Domoticz.Log("LG ThinQ AC device created.")
                 
         # AWHP part
-        if Parameters["Mode1"] == "type_awhp" and self.lg_device is not None:
+        elif Parameters["Mode1"] == "type_awhp" and self.lg_device is not None:
             Domoticz.Log("Getting AWHP status successful.")
             if len(Devices) == 0:
                 Domoticz.Device(Name="Operation", Unit=1, Image=16, TypeName="Switch", Used=1).Create()

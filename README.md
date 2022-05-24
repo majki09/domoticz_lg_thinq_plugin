@@ -48,17 +48,17 @@ Proceed only if you have at least one *thinq2* compatible device listed, which c
        thinq2 devices: 1
        ed123456-f3c5-1616-9ec2-abcdef123456: Klima (AC RAC_056905_WW / thinq2)
    
-   which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad. You will get your `wideq_state.json` file in plugin's folder.
-
-3. Move your `wideq_state.json` file to domoticz folder.
-
-       $ mv ./wideq_state.json ../../
+   which `ed123456-f3c5-1616-9ec2-abcdef123456` is Device ID (yours will be different). Note down your AC's Device ID to notepad. You will get your `wideq_state.json` file in plugin folder.
 	
-4. Restart your domoticz.
+3. Restart your domoticz.
 
        $ sudo systemctl restart domoticz.service
 
-5. Open **Hardware** tab and you should be now able to add new LG ThinQ device to your domoticz. Put your country and language codes and device ID. Click **Add** and new domoticz devices should be created. That's it!
+4. Open **Hardware** tab and you should be now able to add new LG ThinQ device to your domoticz. Put your country and language codes and device ID. Click **Add** and new domoticz devices should be created. That's it!
+
+Docker
+------
+Just install like any other plugin - manual: https://www.domoticz.com/wiki/Docker#Python_Plugins. The rest is pretty the same. To avoid loosing your `wideq_state.json` file (e.g. when recreating the container) just keep it under */userdata* folder - that's it!
 
 Development
 -----------
@@ -71,10 +71,14 @@ To-do
 
 Credits
 -------
-Many thanks for [Adrian Sampson][adrian] and [no2chem] for his [fork] with V2 version.
-The license is [MIT][].
+Many thanks for 
+- [Adrian Sampson][adrian] and [no2chem] for his [fork] with V2 version,
+- [superprzemo] for his wideq_state file with heat-pump.
+
+The license is [MIT].
 
 [adrian]: https://github.com/sampsyo
 [no2chem]: https://github.com/no2chem
 [fork]: https://github.com/no2chem/wideq
 [mit]: https://opensource.org/licenses/MIT
+[superprzemo]: https://github.com/superprzemo

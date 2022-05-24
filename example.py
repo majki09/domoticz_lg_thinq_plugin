@@ -9,8 +9,28 @@ import re
 import os.path
 import logging
 
-STATE_FILE = "wideq_state.json"
+STATE_FILE_NAME = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
+
+# determine the wideq_state file location
+# non-docker location
+try:
+    loc_to_try = ".//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
+    with open(loc_to_try, 'r' ):
+        STATE_FILE = loc_to_try
+        LOGGER.info("wideq_state file loaded from non-docker location")
+except IOError:
+# docker location
+    try:
+        loc_to_try = ".//userdata//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
+        with open(loc_to_try, 'r'):
+            STATE_FILE = loc_to_try
+            LOGGER.info("wideq_state file loaded from docker location")
+    except IOError:
+        STATE_FILE = STATE_FILE_NAME
+        LOGGER.error("wideq_state file not found. Trying to load default STATE_FILE: " + STATE_FILE_NAME)
+
+LOGGER.info("wideq_state will be loaded from: " + STATE_FILE)
 
 
 def authenticate(gateway):

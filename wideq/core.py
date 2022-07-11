@@ -160,6 +160,12 @@ class NotLoggedInError(APIError):
     """The session is not valid or expired."""
 
 
+class AgreementError(APIError):
+    """The user needs to manually log in again to agree to new terms and
+    conditions.
+    """
+
+
 class NotConnectedError(APIError):
     """The service can't contact the specified device."""
 
@@ -175,13 +181,6 @@ class FailedRequestError(APIError):
     """A failed request typically indicates an unsupported control on a
     device.
     """
-
-
-class InvalidCredentialError(APIError):
-    """The server rejected connection."""
-
-    def __init__(self):
-        pass
 
 
 class InvalidRequestError(APIError):
@@ -213,7 +212,7 @@ API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
     "0100": FailedRequestError,
-    "0110": InvalidCredentialError,
+    "0110": AgreementError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
     9003: NotLoggedInError,  # Session Creation FailureError
 }

@@ -16,19 +16,26 @@ LOGGER = logging.getLogger("wideq.example")
 # non-docker location
 try:
     loc_to_try = ".//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
-    with open(loc_to_try, 'r' ):
+    with open(loc_to_try, 'r'):
         STATE_FILE = loc_to_try
-        LOGGER.info("wideq_state file loaded from non-docker location")
+        LOGGER.info("wideq_state file loaded from non-docker location.")
 except IOError:
-# docker location
+    # Synology NAS location
     try:
-        loc_to_try = ".//userdata//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
+        loc_to_try = ".//var//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
         with open(loc_to_try, 'r'):
             STATE_FILE = loc_to_try
-            LOGGER.info("wideq_state file loaded from docker location")
+            LOGGER.info("wideq_state file loaded from Synology NAS location.")
     except IOError:
-        STATE_FILE = STATE_FILE_NAME
-        LOGGER.error("wideq_state file not found. Trying to load default STATE_FILE: " + STATE_FILE_NAME)
+        # docker location
+        try:
+            loc_to_try = ".//userdata//plugins//domoticz_lg_thinq_plugin//" + STATE_FILE_NAME
+            with open(loc_to_try, 'r'):
+                STATE_FILE = loc_to_try
+                LOGGER.info("wideq_state file loaded from docker location.")
+        except IOError:
+            STATE_FILE = STATE_FILE_NAME
+            LOGGER.error("wideq_state file not found. Trying to load default STATE_FILE: " + STATE_FILE_NAME)
 
 LOGGER.info("wideq_state will be loaded from: " + STATE_FILE)
 

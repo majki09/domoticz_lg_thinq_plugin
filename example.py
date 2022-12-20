@@ -145,9 +145,10 @@ def ac_mon(ac):
                 print(
                     "state {1}; "
                     "{0.mode.name}; "
-                    "cur {0.temp_cur_f}°F; "
-                    "cfg {0.temp_cfg_f}°F; "
-                    "fan speed {0.fan_speed.name}".format(
+                    "cur {0.temp_cur_c}°C; "
+                    "cfg {0.temp_cfg_c}°C; "
+                    "fan speed {0.fan_speed.name}; "
+                    "energy {0.energy_on_current}".format(
                         state, "on" if state.is_on else "off"
                     )
                 )

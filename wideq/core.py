@@ -600,3 +600,16 @@ class Session(object):
 
         res = self.post(controlPath, data)
         return res
+
+    def get_energy_history(self, device_id, start_date, end_date):
+        """Gets energy consumption dict.
+        """
+
+        start_date = "2022-07-12"
+        end_date = "2022-07-12"
+        type = "hour"
+        historyPath = \
+            f"service/aircon/{device_id}/energy-history?period={type}&startDate={start_date}&endDate={end_date}"
+
+        res = self.get(historyPath)
+        return res

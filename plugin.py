@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.0.2" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -100,30 +100,17 @@ class BasePlugin:
         if self.wideq_object.state_file == "":
             return False
 
-        # load config from Domoticz Configuration
-        # self.state["gateway"] = getConfigItem(Key="gateway")
-        # self.state["auth"] = getConfigItem(Key="auth")
-        self.state["gateway"] = {}
-        self.state["auth"] = {}
+        # import web_pdb; web_pdb.set_trace()
 
         try:
             # read AC parameters and Client state
-            self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID,
-                                                                          state=self.state)
+            self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
 
         except UserWarning:
             Domoticz.Error("Device not found on your LG account. Check your device ID.")
 
         if self.lg_device is None:
             return False
-            
-        # store Client state into Domoticz Configuration
-        if getConfigItem(Key="gateway") != self.state["gateway"]:
-            setConfigItem(Key="gateway", Value=self.state["gateway"])
-            Domoticz.Log("LG API2 (gateway) config saved do Domoticz Configuration.")
-        if getConfigItem(Key="auth") != self.state["auth"]:
-            setConfigItem(Key="auth", Value=self.state["auth"])
-            Domoticz.Log("LG API2 (auth) config saved do Domoticz Configuration.")
 
         # AC part
         if self.DEVICE_TYPE == "type_ac":
@@ -385,21 +372,10 @@ class BasePlugin:
                     self.update_domoticz()
                         
                 except wideq.NotLoggedInError:
-                    # load config from Domoticz Configuration
-                    self.state["gateway"] = getConfigItem(Key="gateway")
-                    self.state["auth"] = getConfigItem(Key="auth")
             
                     # read AC parameters and Client state
                     Domoticz.Log("Session expired, refreshing...")
-                    self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID,
-                                                                                  state=self.state)
-                    setConfigItem(Key="state", Value=self.state)
-                    
-                    # store Client state into Domoticz Configuration
-                    if getConfigItem(Key="gateway") != self.state["gateway"]:
-                        setConfigItem(Key="gateway", Value=self.state["gateway"])
-                    if getConfigItem(Key="auth") != self.state["auth"]:
-                        setConfigItem(Key="auth", Value=self.state["auth"])
+                    self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
         if self.heartbeat_counter > 6:
@@ -644,34 +620,6 @@ def DumpListToLog(theList, Depth):
             else:
                 Domoticz.Log(Depth+">'" + x + "': " + str(theList[x]))
 
-# Configuration Helpers
-def getConfigItem(Key=None, Default={}):
-    Value = Default
-    try:
-        Config = Domoticz.Configuration()
-        if (Key != None):
-            Value = Config[Key] # only return requested key if there was one
-        else:
-            Value = Config      # return the whole configuration if no key
-    except KeyError:
-        Value = Default
-    except Exception as inst:
-        Domoticz.Error("Domoticz.Configuration read failed: '"+str(inst)+"'")
-    return Value
-    
-def setConfigItem(Key=None, Value=None):
-    Config = {}
-    try:
-        Config = Domoticz.Configuration()
-        if (Key != None):
-            Config[Key] = Value
-        else:
-            Config = Value  # set whole configuration if no key specified
-        Config = Domoticz.Configuration(Config)
-    except Exception as inst:
-        Domoticz.Error("Domoticz.Configuration operation failed: '"+str(inst)+"'")
-    return Config
-
 
 class UserError(Exception):
     """A user-visible command-line error."""
@@ -690,7 +638,7 @@ class CompatibilityError(Exception):
 class WideQ:
     STATE_FILE_NAME = "wideq_state.json"
     state_file: str = ""
-    state: str = ""
+    state: dict = {}
 
     country: str
     language: str
@@ -698,8 +646,6 @@ class WideQ:
     def __init__(self, country, language):
         self.country = country
         self.language = language
-
-        # import web_pdb; web_pdb.set_trace()
 
         self.state_file = self.get_statefile_location()
         if self.state_file != "":
@@ -740,7 +686,7 @@ class WideQ:
 
         return state_file
 
-    def load_state_from_file(self, state_file: str) -> str:
+    def load_state_from_file(self, state_file: str) -> dict:
         state = {}
 
         try:
@@ -784,31 +730,10 @@ class WideQ:
             raise CompatibilityError(f'Sorry, device "{device_id}" is V1 LG API and will NOT work with this domoticz plugin.')
         return device
 
-    def operate_device(self,
-                       device_id: str="",
-                       state=None) -> (wideq.ACDevice, dict):
-        if state is None:
-            state = {"gateway": {}, "auth": {}}
+    def operate_device(self, device_id: str="") -> (wideq.ACDevice, dict):
         lg_device = None
 
-        # Load the current state for the example.
-        if state["gateway"] != {} and state["auth"] != {}:
-            # if state data comes from Domoticz Configuration
-            Domoticz.Log("State data loaded from Domoticz Configuration.")
-        else:
-            # if state data comes from wideq_state.json
-            try:
-                with open(self.state_file) as f:
-                    Domoticz.Log(f"State data loaded from '{os.path.abspath(self.state_file)}'")
-                    state = json.load(f)
-            except IOError:
-                Domoticz.Error(f"No state file found (tried: '{os.path.abspath(self.state_file)}')")
-                state = {}
-            except json.decoder.JSONDecodeError:
-                Domoticz.Error("Broken wideq_state.json file?")
-                raise IOError
-
-        client = wideq.Client.load(state)
+        client = wideq.Client.load(self.state)
         client._country = self.country
         client._language = self.language
 
@@ -837,17 +762,17 @@ class WideQ:
             except CompatibilityError as exc:
                 Domoticz.Error(exc.args[0])
                 Domoticz.Error("You don't have any compatible (LG API V2) devices.")
-                return lg_device, state
+                return lg_device, self.state
 
         thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
         if len(thinq2_devices) > 0:
-            if self.state != state:
-                # Save the updated state.
-                state = client.dump()
+            current_state = client.dump()
+            # Save the updated state.
+            if self.state != current_state:
                 with open(self.state_file, "w") as f:
-                    json.dump(state, f)
+                    json.dump(current_state, f)
                     Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
 
-        dict_for_domoticz = {"gateway": state["gateway"], "auth": state["auth"]}
+        dict_for_domoticz = {"gateway": current_state["gateway"], "auth": current_state["auth"]}
 
         return lg_device, dict_for_domoticz

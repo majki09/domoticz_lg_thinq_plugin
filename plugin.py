@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -104,7 +104,7 @@ class BasePlugin:
 
         try:
             # read AC parameters and Client state
-            self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
+            self.lg_device = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
 
         except UserWarning:
             Domoticz.Error("Device not found on your LG account. Check your device ID.")
@@ -375,7 +375,7 @@ class BasePlugin:
             
                     # read AC parameters and Client state
                     Domoticz.Log("Session expired, refreshing...")
-                    self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
+                    self.lg_device = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
         if self.heartbeat_counter > 6:
@@ -730,7 +730,7 @@ class WideQ:
             raise CompatibilityError(f'Sorry, device "{device_id}" is V1 LG API and will NOT work with this domoticz plugin.')
         return device
 
-    def operate_device(self, device_id: str="") -> (wideq.ACDevice, dict):
+    def operate_device(self, device_id: str = ""):
         lg_device = None
 
         client = wideq.Client.load(self.state)
@@ -762,17 +762,14 @@ class WideQ:
             except CompatibilityError as exc:
                 Domoticz.Error(exc.args[0])
                 Domoticz.Error("You don't have any compatible (LG API V2) devices.")
-                return lg_device, self.state
+                return None
 
-        thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
-        if len(thinq2_devices) > 0:
-            current_state = client.dump()
-            # Save the updated state.
-            if self.state != current_state:
-                with open(self.state_file, "w") as f:
-                    json.dump(current_state, f)
-                    Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
+        current_state = client.dump()
+        # Save the updated state.
+        if self.state != current_state:
+            self.state = current_state
+            with open(self.state_file, "w") as f:
+                json.dump(current_state, f)
+                Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
 
-        dict_for_domoticz = {"gateway": current_state["gateway"], "auth": current_state["auth"]}
-
-        return lg_device, dict_for_domoticz
+        return lg_device

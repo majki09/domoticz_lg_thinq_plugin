@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.0.0" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.0.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -97,21 +97,20 @@ class BasePlugin:
         self.wideq_object = WideQ(country=self.COUNTRY,
                                   language=self.LANGUAGE)
 
+        if self.wideq_object.state_file == "":
+            return False
+
         # load config from Domoticz Configuration
         # self.state["gateway"] = getConfigItem(Key="gateway")
         # self.state["auth"] = getConfigItem(Key="auth")
         self.state["gateway"] = {}
         self.state["auth"] = {}
 
-        import web_pdb; web_pdb.set_trace()
-
         try:
             # read AC parameters and Client state
             self.lg_device, self.state = self.wideq_object.operate_device(device_id=self.DEVICE_ID,
                                                                           state=self.state)
-            
-        except IOError:
-            Domoticz.Error("wideq_state.json status file missing or corrupted.")
+
         except UserWarning:
             Domoticz.Error("Device not found on your LG account. Check your device ID.")
 
@@ -691,6 +690,7 @@ class CompatibilityError(Exception):
 class WideQ:
     STATE_FILE_NAME = "wideq_state.json"
     state_file: str = ""
+    state: str = ""
 
     country: str
     language: str
@@ -699,36 +699,60 @@ class WideQ:
         self.country = country
         self.language = language
 
-        self.get_statefile_location()
+        # import web_pdb; web_pdb.set_trace()
 
-    def get_statefile_location(self):
+        self.state_file = self.get_statefile_location()
+        if self.state_file != "":
+            self.state = self.load_state_from_file(self.state_file)
+
+    def get_statefile_location(self) -> str:
+        state_file = ""
+
         # determine the wideq_state file location
         # non-docker location
-
         try:
             loc_to_try = ".//plugins//domoticz_lg_thinq_plugin//" + self.STATE_FILE_NAME
             with open(loc_to_try, 'r'):
-                self.state_file = loc_to_try
-                Domoticz.Log("wideq_state file loaded from non-docker location.")
+                state_file = loc_to_try
+                Domoticz.Log("wideq_state file found in non-docker location.")
         except IOError:
             # Synology NAS location
             try:
                 loc_to_try = ".//var//plugins//domoticz_lg_thinq_plugin//" + self.STATE_FILE_NAME
                 with open(loc_to_try, 'r'):
-                    self.state_file = loc_to_try
-                    Domoticz.Log("wideq_state file loaded from Synology NAS location.")
+                    state_file = loc_to_try
+                    Domoticz.Log("wideq_state file found in Synology NAS location.")
             except IOError:
                 # docker location
                 try:
                     loc_to_try = ".//userdata//plugins//domoticz_lg_thinq_plugin//" + self.STATE_FILE_NAME
                     with open(loc_to_try, 'r'):
-                        self.state_file = loc_to_try
-                        Domoticz.Log("wideq_state file loaded from docker location.")
+                        state_file = loc_to_try
+                        Domoticz.Log("wideq_state file found in docker location.")
                 except IOError:
-                    self.state_file = self.STATE_FILE_NAME
-                    Domoticz.Error(f"wideq_state file not found. Trying to load default STATE_FILE: {self.STATE_FILE_NAME}")
+                    try:
+                        loc_to_try = self.STATE_FILE_NAME
+                        with open(loc_to_try, 'r'):
+                            state_file = loc_to_try
+                            Domoticz.Log("wideq_state file found in default location.")
+                    except IOError:
+                        Domoticz.Error(f"wideq_state file not found!")
 
-        Domoticz.Log(f"wideq_state will be loaded from: {self.state_file}")
+        return state_file
+
+    def load_state_from_file(self, state_file: str) -> str:
+        state = {}
+
+        try:
+            with open(state_file) as f:
+                Domoticz.Log(f"State data loaded from '{os.path.abspath(state_file)}'")
+                state = json.load(f)
+        except IOError:
+            Domoticz.Error(f"No state file found (tried: '{os.path.abspath(state_file)}')")
+        except json.decoder.JSONDecodeError:
+            Domoticz.Error("Broken wideq_state.json file?")
+
+        return state
 
     def authenticate(self, gateway):
         """Interactively authenticate the user via a browser to get an OAuth

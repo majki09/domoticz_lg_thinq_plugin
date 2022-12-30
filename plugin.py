@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.0.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.0.2" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -841,11 +841,12 @@ class WideQ:
 
         thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
         if len(thinq2_devices) > 0:
-            # Save the updated state.
-            state = client.dump()
-            with open(self.state_file, "w") as f:
-                json.dump(state, f)
-                Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
+            if self.state != state:
+                # Save the updated state.
+                state = client.dump()
+                with open(self.state_file, "w") as f:
+                    json.dump(state, f)
+                    Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
 
         dict_for_domoticz = {"gateway": state["gateway"], "auth": state["auth"]}
 

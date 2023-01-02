@@ -68,6 +68,7 @@ This project is based on `wideq` project that has been developed by [Adrian Samp
 To-do
 -----
 - devices are updated with a heartbeat (every 60 seconds). If you change your AC's parameters with IR remote or mobile app, changes are not updated imidiately in your domoticz. Not applicable for domoticz control.
+- force status updates more often - for now statuses like internal temp. or set-point are updated only while turning on the device.
 
 Credits
 -------

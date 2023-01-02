@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.1" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.2" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -374,7 +374,6 @@ class BasePlugin:
                 except wideq.NotLoggedInError:
             
                     # read AC parameters and Client state
-                    Domoticz.Log("Session expired, refreshing...")
                     self.lg_device = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
@@ -731,8 +730,6 @@ class WideQ:
         return device
 
     def operate_device(self, device_id: str = ""):
-        lg_device = None
-
         client = wideq.Client.load(self.state)
         client._country = self.country
         client._language = self.language
@@ -744,15 +741,14 @@ class WideQ:
         # Loop to retry if session has expired.
         while True:
             try:
-                if len(device_id) > 0:
-                    lg_device = wideq.ACDevice(client, self._force_device(client, device_id))
+                lg_device = wideq.ACDevice(client, self._force_device(client, device_id))
                 break
 
             except TypeError:
                 Domoticz.Log("Could NOT log in. Probably you need to accept new agreement in the mobile app.")
 
             except wideq.NotLoggedInError or wideq.core.NotLoggedInError:
-                Domoticz.Log("Session expired.")
+                Domoticz.Log("Session expired, refreshing...")
                 client.refresh()
 
             except UserError as exc:

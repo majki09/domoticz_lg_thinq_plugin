@@ -5,7 +5,7 @@
 # Author: majki
 #
 """
-<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.2" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
+<plugin key="LG_ThinQ" name="LG ThinQ" author="majki" version="2.1.3" externallink="https://github.com/majki09/domoticz_lg_thinq_plugin">
     <description>
         <h2>LG ThinQ domoticz plugin</h2><br/>
         Plugin uses LG API v2. All API interface (with some mods) comes from <a href="https://github.com/no2chem/wideq"> github.com/no2chem/wideq</a>.<br/><br/>
@@ -761,11 +761,13 @@ class WideQ:
                 return None
 
         current_state = client.dump()
+
         # Save the updated state.
-        if self.state != current_state:
+        if (self.state["auth"] != current_state["auth"]) or (self.state["gateway"] != current_state["gateway"]):
             self.state = current_state
             with open(self.state_file, "w") as f:
-                json.dump(current_state, f)
+                auth_and_gateway_merged = {**current_state["auth"], **current_state["gateway"]}
+                json.dump(auth_and_gateway_merged, f)
                 Domoticz.Log(f"State written to state file '{os.path.abspath(self.state_file)}'")
 
         return lg_device

@@ -1,7 +1,7 @@
 Domoticz LG ThinQ (with WideQ) plugin.
 =====
 
-:fire: # NEW! Energy history script -> scroll [down below](#energy-history-script)
+# :fire: NEW! Energy history script -> scroll [down below](#energy-history-script)
 
 ![alt text](https://raw.githubusercontent.com/majki09/domoticz_lg_thinq_plugin/main/domoticz.jpg "LG ThinQ plugin in domoticz")
 

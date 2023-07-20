@@ -12,6 +12,7 @@ import logging
 from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from time import strftime
 
 GATEWAY_URL = (
     "https://route.lgthinq.com:46030/v1/service/application/gateway-uri"
@@ -601,13 +602,17 @@ class Session(object):
         res = self.post(controlPath, data)
         return res
 
-    def get_energy_history(self, device_id, start_date, end_date):
+    def get_energy_history(self, device_id, type="hour", start_date="", end_date=""):
         """Gets energy consumption dict.
+        type can be hour, day, month.
         """
 
-        start_date = "2022-07-12"
-        end_date = "2022-07-12"
-        type = "hour"
+        # if dates not provided, set them to today date
+        if start_date == "":
+            start_date = strftime(f"%Y-%m-%d")
+        if end_date == "":
+            end_date = strftime(f"%Y-%m-%d")
+
         historyPath = \
             f"service/aircon/{device_id}/energy-history?period={type}&startDate={start_date}&endDate={end_date}"
 

@@ -1,6 +1,8 @@
 Domoticz LG ThinQ (with WideQ) plugin.
 =====
 
+:fire: # NEW! Energy history script -> scroll [down below](#energy-history-script)
+
 ![alt text](https://raw.githubusercontent.com/majki09/domoticz_lg_thinq_plugin/main/domoticz.jpg "LG ThinQ plugin in domoticz")
 
 :warning: **New users of LG ThinQ**: This library only works with v2 of the LG ThinQ API. You can check if your device is compatible when you execute the `example.py`. To use it, provide it with a country and language code via the `-c` and `-l` flags, respectively:
@@ -65,10 +67,43 @@ Development
 The API has been reverse-engineered from LG's mobile app.
 This project is based on `wideq` project that has been developed by [Adrian Sampson][adrian] and modified for v2 by [no2chem] in his [fork]. I have made domoticz plugin then which uses most of their work for LG's server connection.
 
-To-do
+Notes
 -----
 - devices are updated with a heartbeat (every 60 seconds). If you change your AC's parameters with IR remote or mobile app, changes are not updated imidiately in your domoticz. Not applicable for domoticz control.
+
+To-do
+-----
 - force status updates more often - for now statuses like internal temp. or set-point are updated only while turning on the device.
+
+Energy history script
+---------------------
+Now extra file came into our repository to put your LG device's energy history into domoticz! Ladies and Gentleman, let me introduce `energy_history2domoticz.py` :fireworks:
+
+It can get your LG device's power consumption history, day-by-day and update it to your domoticz managed counter device.
+LG's servers limitation is 2 years (732 days) back. You need to put right dates, otherwise you will get an _9999 error_.
+
+### Usage
+1. Create new **Managed Counter** in your Domoticz and notice it's IDX - this will be your energy device.
+2. Run the script.
+
+Arguments:
+
+- -d LG device ID,
+- -u domoticz URL,
+- -i Managed Counter's IDX,
+- -s start date
+- -e end date
+
+Example:
+```commandline
+python3 energy_history2domoticz.py -c PL -l en-US -d ed123456-f3c5-1616-9ec2-abcdef123456 -u http://192.168.0.50:8080 -i 287 -s 2023-07-16 -e 2023-07-19
+2023-07-20 13:18:13 INFO [wideq.example] Getting energy history data from range 2023-07-16 - 2023-07-19 from LG server...
+2023-07-20 13:18:13 INFO [wideq.example] Energy history data from range 2023-07-16 - 2023-07-19 successfully fetched from LG server.
+2023-07-20 13:18:18 INFO [wideq.example] 1/4 25%	Sending 2023-07-16 (45)	OK
+2023-07-20 13:18:19 INFO [wideq.example] 2/4 50%	Sending 2023-07-17 (5)	OK
+2023-07-20 13:18:20 INFO [wideq.example] 3/4 75%	Sending 2023-07-18 (6)	OK
+2023-07-20 13:18:21 INFO [wideq.example] 4/4 100%	Sending 2023-07-19 (7)	OK
+```
 
 Credits
 -------

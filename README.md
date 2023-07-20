@@ -86,7 +86,8 @@ LG's servers limitation is 2 years (732 days) back. You need to put right dates,
 
 ### Usage
 1. Create new **Managed Counter** in your Domoticz and notice it's IDX - this will be your energy device.
-2. Run the script.
+2. Make it able to insert data into history log according to [this manual](https://www.domoticz.com/wiki/Domoticz_API/JSON_URL's#Note_on_counters).
+3. Run the script.
 
 Arguments:
 

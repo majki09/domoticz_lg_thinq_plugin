@@ -1,7 +1,9 @@
+!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/majki09)
+
 Domoticz LG ThinQ (with WideQ) plugin.
 =====
 
-:fire: # NEW! Energy history script -> scroll [down below](#energy-history-script)
+# :fire: NEW! Energy history script -> scroll [down below](#energy-history-script)
 
 ![alt text](https://raw.githubusercontent.com/majki09/domoticz_lg_thinq_plugin/main/domoticz.jpg "LG ThinQ plugin in domoticz")
 
@@ -118,3 +120,6 @@ The license is [MIT].
 [fork]: https://github.com/no2chem/wideq
 [mit]: https://opensource.org/licenses/MIT
 [superprzemo]: https://github.com/superprzemo
+
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/majki09)

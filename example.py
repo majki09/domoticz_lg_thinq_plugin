@@ -56,14 +56,18 @@ def authenticate(gateway):
 def ls(client):
     """List the user's devices."""
 
-    thinq1_devices = [dev for dev in client.devices if dev.platform_type == "thinq1"]
-    thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
+    try:
+        thinq1_devices = [dev for dev in client.devices if dev.platform_type == "thinq1"]
 
-    if len(thinq1_devices) > 0:
-        print("\nthinq1 devices: {}".format(len(thinq1_devices)))
-        print("WARNING! Following devices are V1 LG API and will likely NOT work with this domoticz plugin!\n")
-        for device in thinq1_devices:
-            print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+        if len(thinq1_devices) > 0:
+            print("\nthinq1 devices: {}".format(len(thinq1_devices)))
+            print("WARNING! Following devices are V1 LG API and will likely NOT work with this domoticz plugin!\n")
+            for device in thinq1_devices:
+                print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+    except TypeError:
+        print("No thinq1 devices found or there was some LG server error.")
+
+    thinq2_devices = [dev for dev in client.devices if dev.platform_type == "thinq2"]
 
     print("\nthinq2 devices: {}".format(len(thinq2_devices)))
     if len(thinq2_devices) > 0:

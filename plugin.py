@@ -381,7 +381,7 @@ class BasePlugin:
                     self.lg_device = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
-        if self.heartbeat_counter > 6:
+        if self.heartbeat_counter > 5:
             self.heartbeat_counter = 0
         
     def update_domoticz(self):

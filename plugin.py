@@ -75,6 +75,7 @@ class BasePlugin:
         self.room_temp = ""
         self.in_water_temp = ""
         self.out_water_temp = ""
+        self.DHW_water_temp = ""
         self.wind_strength = ""
         self.h_step = ""
         self.v_step = ""
@@ -169,6 +170,7 @@ class BasePlugin:
                 Domoticz.Device(Name="Hot water temp", Unit=4, Type=242, Subtype=1, Image=15, Used=1).Create()
                 Domoticz.Device(Name="Input water temp", Unit=5, TypeName="Temperature", Used=1).Create()
                 Domoticz.Device(Name="Output water temp", Unit=6, TypeName="Temperature", Used=1).Create()
+                Domoticz.Device(Name="DHW water temp", Unit=7, TypeName="Temperature", Used=1).Create()
                 
                 Domoticz.Log("LG ThinQ AWHP device created.") 
         else:
@@ -369,6 +371,7 @@ class BasePlugin:
                         self.hot_water_temp = str(self.lg_device_status.temp_hot_water_cfg_c)
                         self.in_water_temp = str(self.lg_device_status.in_water_cur_c)
                         self.out_water_temp = str(self.lg_device_status.out_water_cur_c)
+                        self.DHW_water_temp = str(self.lg_device_status.temp_hot_water_cur_c)
                         
                     self.update_domoticz()
                         
@@ -378,7 +381,7 @@ class BasePlugin:
                     self.lg_device = self.wideq_object.operate_device(device_id=self.DEVICE_ID)
                             
         self.heartbeat_counter = self.heartbeat_counter + 1
-        if self.heartbeat_counter > 5:
+        if self.heartbeat_counter > 6:
             self.heartbeat_counter = 0
         
     def update_domoticz(self):
@@ -545,6 +548,11 @@ class BasePlugin:
             if Devices[6].nValue != self.operation or Devices[6].sValue != self.out_water_temp:
                 Devices[6].Update(nValue = self.operation, sValue = self.out_water_temp)
                 Domoticz.Log("tempState.outWaterCurrent received! Current: " + self.out_water_temp)
+
+            # DHW water temp (tempState.hotWaterCurrent)
+            if Devices[7].nValue != self.operation or Devices[7].sValue != self.DHW_water_temp:
+                Devices[7].Update(nValue = self.operation, sValue = self.DHW_water_temp)
+                Domoticz.Log("tempState.hotWaterCurrent received! Current: " + self.DHW_water_temp)
 
 global _plugin
 _plugin = BasePlugin()
